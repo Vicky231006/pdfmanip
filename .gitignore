@@ -55,3 +55,7 @@ uploads/
 # Logs
 *.log
 logs/ 
+venv/
+__pycache__/
+instance/
+*.pyc

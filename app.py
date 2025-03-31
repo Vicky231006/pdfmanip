@@ -8,13 +8,17 @@ import io
 import json
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from functools import wraps
 import secrets
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-super-secret-key-123')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -318,7 +322,7 @@ def forgot_password():
             # Generate reset token
             token = secrets.token_urlsafe(32)
             user.reset_token = token
-            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
+            user.reset_token_expiry = datetime.now(UTC) + timedelta(hours=1)
             db.session.commit()
             
             # For demo purposes, just show the token
@@ -336,7 +340,7 @@ def reset_password(token):
         return redirect(url_for('index'))
         
     user = User.query.filter_by(reset_token=token).first()
-    if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.utcnow():
+    if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.now(UTC):
         flash('Invalid or expired reset token.', 'error')
         return redirect(url_for('forgot_password'))
         
