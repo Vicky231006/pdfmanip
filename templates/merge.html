@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge PDFs - PDF Manipulator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+            padding: 0.8rem 0;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            .btn-outline-light {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+        .drag-area {
+            border: 2px dashed #ffd700;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 576px) {
+            .drag-area {
+                padding: 1.5rem;
+            }
+            .drag-area h4 {
+                font-size: 1.1rem;
+            }
+            .drag-area p {
+                font-size: 0.9rem;
+            }
+        }
+        .drag-area:hover {
+            border-color: #ffa500;
+            background: #fff9e6;
+        }
+        .file-list {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        @media (max-width: 576px) {
+            .file-list {
+                max-height: 300px;
+            }
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        @media (max-width: 576px) {
+            .file-item {
+                padding: 0.8rem;
+                margin: 0.3rem 0;
+            }
+        }
+        .file-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .pdf-preview {
+            width: 100px;
+            height: 140px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        @media (max-width: 576px) {
+            .pdf-preview {
+                width: 80px;
+                height: 112px;
+                margin-right: 0.5rem;
+            }
+        }
+        .pdf-preview canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        @media (max-width: 576px) {
+            .btn-primary {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ffa500 0%, #ffd700 100%);
+        }
+        .page-title {
+            color: #ffa500;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 576px) {
+            .page-title {
+                font-size: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+        .pdf-icon {
+            font-size: 2rem;
+            color: #ffa500;
+        }
+        @media (max-width: 576px) {
+            .pdf-icon {
+                font-size: 1.5rem;
+            }
+        }
+        .page-count {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+        .file-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        @media (max-width: 576px) {
+            .file-info h6 {
+                font-size: 0.9rem;
+            }
+            .file-info small {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-file-pdf me-2"></i>PDF Manipulator
+            </a>
+            <a href="/" class="btn btn-outline-light">
+                <i class="fas fa-home me-2"></i>Home
+            </a>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <h1 class="text-center page-title">Merge PDFs</h1>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="drag-area" id="pdfUploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: #ffd700;"></i>
+                            <h4>Drag & Drop PDFs Here</h4>
+                            <p class="text-muted">or click to select files</p>
+                            <input type="file" id="pdfInput" multiple accept=".pdf" class="d-none">
+                        </div>
+                        
+                        <div class="file-list" id="pdfList"></div>
+                        
+                        <div class="text-center mt-4">
+                            <button class="btn btn-primary" id="mergeBtn">
+                                <i class="fas fa-object-group me-2"></i>Merge PDFs
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+
+        const pdfUploadArea = document.getElementById('pdfUploadArea');
+        const pdfInput = document.getElementById('pdfInput');
+        const pdfList = document.getElementById('pdfList');
+        const mergeBtn = document.getElementById('mergeBtn');
+
+        pdfUploadArea.addEventListener('click', () => pdfInput.click());
+        pdfUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            pdfUploadArea.style.borderColor = '#ffa500';
+        });
+        pdfUploadArea.addEventListener('dragleave', () => {
+            pdfUploadArea.style.borderColor = '#ffd700';
+        });
+        pdfUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            pdfUploadArea.style.borderColor = '#ffd700';
+            pdfInput.files = e.dataTransfer.files;
+            updatePdfList();
+        });
+
+        pdfInput.addEventListener('change', updatePdfList);
+
+        async function createFileItem(file) {
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'pdf-preview';
+            
+            const canvas = document.createElement('canvas');
+            previewDiv.appendChild(canvas);
+            
+            const pageCount = document.createElement('div');
+            pageCount.className = 'page-count';
+            previewDiv.appendChild(pageCount);
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'file-info';
+            infoDiv.innerHTML = `
+                <h6 class="mb-1">${file.name}</h6>
+                <small class="text-muted">${(file.size / 1024).toFixed(2)} KB</small>
+            `;
+            
+            div.appendChild(previewDiv);
+            div.appendChild(infoDiv);
+            pdfList.appendChild(div);
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                pageCount.textContent = `${pdf.numPages} pages`;
+                
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 0.5 });
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                
+                await page.render({
+                    canvasContext: canvas.getContext('2d'),
+                    viewport: viewport
+                }).promise;
+
+                // Add click handler to open PDF in new tab
+                div.addEventListener('click', () => {
+                    const url = URL.createObjectURL(file);
+                    window.open(url, '_blank');
+                });
+            } catch (error) {
+                console.error('Error loading PDF:', error);
+                previewDiv.innerHTML = '<i class="fas fa-file-pdf pdf-icon"></i>';
+            }
+        }
+
+        async function updatePdfList() {
+            pdfList.innerHTML = '';
+            for (const file of pdfInput.files) {
+                await createFileItem(file);
+            }
+        }
+
+        mergeBtn.addEventListener('click', async () => {
+            if (!pdfInput.files.length) {
+                alert('Please select at least one PDF file');
+                return;
+            }
+
+            const formData = new FormData();
+            Array.from(pdfInput.files).forEach(file => {
+                formData.append('files', file);
+            });
+
+            try {
+                mergeBtn.disabled = true;
+                mergeBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Merging...';
+                
+                const response = await fetch('/merge-pdfs', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'merged.pdf';
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    throw new Error('Merge failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred during merging');
+            } finally {
+                mergeBtn.disabled = false;
+                mergeBtn.innerHTML = '<i class="fas fa-object-group me-2"></i>Merge PDFs';
+            }
+        });
+    </script>
+</body>
+</html> 

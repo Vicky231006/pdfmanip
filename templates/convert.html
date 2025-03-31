@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert Images to PDF - PDF Manipulator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        .drag-area {
+            border: 2px dashed #ff6b6b;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        .drag-area:hover {
+            border-color: #ff4757;
+            background: #fff5f5;
+        }
+        .file-list {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+        .file-item:hover {
+            transform: translateX(5px);
+        }
+        .preview-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 1rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
+        }
+        .page-title {
+            color: #ff4757;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-file-pdf me-2"></i>PDF Manipulator
+            </a>
+            <a href="/" class="btn btn-outline-light">
+                <i class="fas fa-home me-2"></i>Home
+            </a>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <h1 class="text-center page-title">Convert Images to PDF</h1>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="drag-area" id="imageUploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: #ff6b6b;"></i>
+                            <h4>Drag & Drop Images Here</h4>
+                            <p class="text-muted">or click to select files</p>
+                            <input type="file" id="imageInput" multiple accept=".jpg,.jpeg,.png" class="d-none">
+                        </div>
+                        
+                        <div class="file-list" id="imageList"></div>
+                        
+                        <div class="text-center mt-4">
+                            <button class="btn btn-primary" id="convertBtn">
+                                <i class="fas fa-file-pdf me-2"></i>Convert to PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const imageUploadArea = document.getElementById('imageUploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const imageList = document.getElementById('imageList');
+        const convertBtn = document.getElementById('convertBtn');
+
+        imageUploadArea.addEventListener('click', () => imageInput.click());
+        imageUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            imageUploadArea.style.borderColor = '#ff4757';
+        });
+        imageUploadArea.addEventListener('dragleave', () => {
+            imageUploadArea.style.borderColor = '#ff6b6b';
+        });
+        imageUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageUploadArea.style.borderColor = '#ff6b6b';
+            imageInput.files = e.dataTransfer.files;
+            updateImageList();
+        });
+
+        imageInput.addEventListener('change', updateImageList);
+
+        function createFileItem(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `
+                    <img src="${e.target.result}" class="preview-image">
+                    <div>
+                        <h6 class="mb-1">${file.name}</h6>
+                        <small class="text-muted">${(file.size / 1024).toFixed(2)} KB</small>
+                    </div>
+                `;
+                imageList.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateImageList() {
+            imageList.innerHTML = '';
+            Array.from(imageInput.files).forEach(file => {
+                createFileItem(file);
+            });
+        }
+
+        convertBtn.addEventListener('click', async () => {
+            if (!imageInput.files.length) {
+                alert('Please select at least one image');
+                return;
+            }
+
+            const formData = new FormData();
+            Array.from(imageInput.files).forEach(file => {
+                formData.append('files', file);
+            });
+
+            try {
+                convertBtn.disabled = true;
+                convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Converting...';
+                
+                const response = await fetch('/convert-to-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'converted.pdf';
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    throw new Error('Conversion failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred during conversion');
+            } finally {
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<i class="fas fa-file-pdf me-2"></i>Convert to PDF';
+            }
+        });
+    </script>
+</body>
+</html> 

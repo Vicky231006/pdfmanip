@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}My Account - PDF Manipulator{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h2 class="mb-0">My Account</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3 text-center">
+                            <div class="account-icon">
+                                <i class="fas fa-user-circle fa-4x text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <h4>{{ current_user.email }}</h4>
+                            <p class="text-muted">Member since {{ current_user.created_at.strftime('%B %Y') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ url_for('history') }}" class="card h-100 text-decoration-none">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-history fa-2x text-primary mb-3"></i>
+                                    <h5>Operation History</h5>
+                                    <p class="text-muted mb-0">View your past PDF operations</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ url_for('logout') }}" class="card h-100 text-decoration-none">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-sign-out-alt fa-2x text-danger mb-3"></i>
+                                    <h5>Logout</h5>
+                                    <p class="text-muted mb-0">Sign out of your account</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.account-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+    border-radius: 50%;
+}
+
+.card {
+    transition: transform 0.2s;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.text-primary {
+    color: #2ecc71 !important;
+}
+
+.text-danger {
+    color: #e74c3c !important;
+}
+</style>
+{% endblock %} 

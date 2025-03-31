@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Manipulator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            padding: 0.8rem 0;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: 600;
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .navbar-brand i {
+            color: white;
+            margin-right: 0.5rem;
+        }
+        .navbar-brand span {
+            background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-right: 0.5rem;
+        }
+        .navbar-brand span:last-child {
+            background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            .btn-outline-light {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+        .hero-section {
+            padding: 4rem 0;
+            text-align: center;
+            color: #2d3436;
+        }
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+        .hero-section p {
+            font-size: 1.2rem;
+            color: #636e72;
+            margin-bottom: 2rem;
+        }
+        .options-section {
+            padding: 2rem 0;
+        }
+        .option-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: none;
+            overflow: hidden;
+        }
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .option-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .option-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        .option-card p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 1.5rem;
+        }
+        .option-1 {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+        }
+        .option-2 {
+            background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+        }
+        .option-3 {
+            background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
+        }
+        .btn-primary {
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        .convert-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+            border: none;
+        }
+        .merge-btn {
+            background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+            border: none;
+        }
+        .reorder-btn {
+            background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
+            border: none;
+        }
+        .convert-btn:hover {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
+        }
+        .merge-btn:hover {
+            background: linear-gradient(135deg, #ffa500 0%, #ffd700 100%);
+        }
+        .reorder-btn:hover {
+            background: linear-gradient(135deg, #686de0 0%, #4834d4 100%);
+        }
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 3rem 0;
+            }
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            .hero-section p {
+                font-size: 1rem;
+            }
+            .option-card {
+                margin-bottom: 1.5rem;
+            }
+        }
+        .profile-btn {
+            background: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            color: #2d3436;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-btn:hover {
+            background: #f5f6fa;
+            transform: translateY(-1px);
+        }
+        
+        .profile-btn i {
+            color: #2ecc71;
+        }
+        
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            margin-top: 0.5rem;
+        }
+        
+        .dropdown-item {
+            padding: 0.7rem 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item i {
+            color: #2ecc71;
+        }
+        
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .dropdown-item.text-danger i {
+            color: #ff4757;
+        }
+        
+        .dropdown-divider {
+            margin: 0.5rem 0;
+            border-color: #f1f2f6;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-file-pdf"></i>PDF Manipulator
+            </a>
+            <div class="ms-auto">
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle profile-btn" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user me-2"></i>{{ current_user.email }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('account') }}"><i class="fas fa-user-circle me-2"></i>My Account</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('history') }}"><i class="fas fa-history me-2"></i>History</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 mb-3">Transform Your PDFs</h1>
+            <p class="lead">Powerful tools for all your PDF needs</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <a href="/convert" class="text-decoration-none">
+                    <div class="card option-card option-1">
+                        <div class="card-body">
+                            <i class="fas fa-image option-icon"></i>
+                            <h3>Convert Images to PDF</h3>
+                            <p>Transform your images into professional PDF documents</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="/merge" class="text-decoration-none">
+                    <div class="card option-card option-2">
+                        <div class="card-body">
+                            <i class="fas fa-object-group option-icon"></i>
+                            <h3>Merge PDFs</h3>
+                            <p>Combine multiple PDF files into a single document</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="/reorder" class="text-decoration-none">
+                    <div class="card option-card option-3">
+                        <div class="card-body">
+                            <i class="fas fa-sort option-icon"></i>
+                            <h3>Reorder PDF Pages</h3>
+                            <p>Rearrange PDF pages with drag-and-drop ease</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
